@@ -1,0 +1,89 @@
+MODULE main
+VAR
+    alert : boolean;
+	button : boolean;
+	response : boolean;
+	warn : {dim, light, alarm};
+ASSIGN
+	init(alert) := FALSE;
+	init(button) := FALSE;
+	init(response) := FALSE;
+	init(warn) := dim;
+    next(warn) := case
+		!alert & button & warn = dim : light;
+		alert & !response & warn = dim : alarm;
+		alert & !response & warn = light : alarm;
+		response & warn = alarm : light;
+		!alert & !button & warn = light : dim;
+		TRUE : warn;
+		esac;
+
+#需求公式		
+LTLSPEC G (warn = alarm & !response -> X (warn = alarm))
+LTLSPEC G (warn = alarm & response & alert -> X (warn = light))
+LTLSPEC G (warn = dim & !alert & button -> X (warn = light))
+#状态覆盖	
+LTLSPEC G !(warn = alarm)
+#迁移覆盖
+LTLSPEC G (warn = dim & !alert & !button -> X !(warn = dim))
+LTLSPEC G (warn = dim & alert & !response -> X !(warn = alarm))
+LTLSPEC G (warn = dim & !alert & button -> X !(warn = light))
+LTLSPEC G (warn = light & alert & !response -> X !(warn = alarm))
+LTLSPEC G (warn = light & !alert & !button -> X !(warn = dim))
+LTLSPEC G (warn = alarm & response -> X !(warn = light))
+LTLSPEC G (warn = alarm & !response -> X !(warn = alarm))
+#简单guard覆盖
+LTLSPEC G (warn = dim & !alert & !button -> X !(warn = dim))
+LTLSPEC G (warn = dim & !(!alert & !button) -> X (warn = dim))
+#条件覆盖
+LTLSPEC G !(warn = alarm & response = FALSE)
+LTLSPEC G !(warn = alarm & response = TRUE)
+#完全guard覆盖
+LTLSPEC G !(warn = dim & alert = FALSE & button = FALSE & response = FALSE)
+#MC/MD覆盖(对迁移1的alert)
+LTLSPEC G !(warn = dim & alert = FALSE & button = FALSE & response = TRUE)
+LTLSPEC G !(warn = dim & alert = TRUE & button = FALSE & response = TRUE)
+#布尔导数覆盖（第二条迁移的d(P)/d(!button)）
+LTLSPEC G !(warn = dim & !alert -> !button)
+LTLSPEC G !(warn = dim & !alert -> !(!button))
+#过渡对覆盖
+LTLSPEC G ((warn = dim & !alert & !button) -> X((warn = dim & alert & !response) -> X !(warn = alarm)))
+
+
+
+G((t&&!r)->X a1) && G((a3&&!t&&b)->X a2) && G((a1&&r&&t)->X a2) &&G((!t&!b)->X a3)&& G((a1&&!a2&&!a3)||(a2&&!a1&&!a3)||(a3&&!a1&&!a2))&&a3
+
+G((t&&!r)->X a1)
+G((a3&&!t&&b)->X a2)
+G((a1&&r&&t)->X a2)
+G((!t&&!b)->X a3)
+G((a1&&!a2&&!a3)||(a2&&!a1&&!a3)||(a3&&!a1&&!a2))
+a3
+
+
+G((g0&G !r0)->(F !g0))&G((g1&G !r1)->(F !g1))&G((g0&X (!r0&!g0))->X (!g0 W (r0&!g0)))&G((g1&X (!r1&!g1))->X (!g1 W (r1&!g1)))&G(!g0|!g1)&G(r0->F g0)&G(r1->F g1)&(!g0 W (r0&!g0))&(!g1 W (r1&!g1))
+
+
+G((g0&G !r0)->(F !g0))
+G((g1&G !r1)->(F !g1))
+G((g0&X (!r0&!g0))->X (!g0 W (r0&!g0))) 
+G((g1&X (!r1&!g1))->X (!g1 W (r1&!g1)))
+G(!g0|!g1)
+G(r0->F g0)
+G(r1->F g1)
+(!g0 W (r0&!g0))
+(!g1 W (r1&!g1))
+
+G((g0&G !r0)->(F !g0)) & F(g0&G !r0) & FG(!g0)
+G((g1&G !r1)->(F !g1)) & F(g1&G !r1) & FG(!g1)
+G((g0&X (!r0&!g0))->X (!g0 W (r0&!g0))) &FX(!r0&!g0)
+G((g1&X (!r1&!g1))->X (!g1 W (r1&!g1)))
+G(!g0|!g1)
+G(r0->F g0) & F(r0) & FG(g0)
+G(r1->F g1) & F(r1) & FG(g1)
+(!g0 W (r0&!g0)) & F !((r0&!g0))
+(!g1 W (r1&!g1)) & F !((r1&!g1))
+
+
+
+
